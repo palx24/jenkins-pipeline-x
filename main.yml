@@ -1,0 +1,62 @@
+name: Node.js CI/CD Pipeline
+
+# Controls when the workflow will run
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+# Global environment variables
+env:
+  NODE_VERSION: '22'
+  DOCKER_IMAGE_NAME: 'cicd-sample-project'
+
+jobs:
+  build-and-test:
+    name: 📦 Build and Test Application
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Check out the repository source code
+    - name: 🚚 Checkout Repository
+      uses: actions/checkout@v4
+
+    # Step 2: Set up the correct Node.js environment runtime
+    - name: ⚙️ Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    # Step 3: Install clean dependencies mapping package-lock.json
+    - name: 📂 Install Dependencies
+      run: npm ci
+
+    # Step 4: Execute automated unit test criteria (app.test.js)
+    - name: 🧪 Run Automated Tests
+      run: npm test
+
+  docker-build:
+    name: 🐳 Build Docker Image
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+    # Step 1: Check out the repository source code
+    - name: 🚚 Checkout Repository
+      uses: actions/checkout@v4
+
+    # Step 2: Set up Docker Buildx container driver environment
+    - name: 🛠️ Set up Docker Buildx
+      uses: actions/setup-buildx-action@v3
+
+    # Step 3: Build the application container blueprint to verify Dockerfile syntax
+    - name: 🏗️ Build Local Docker Image
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: ./Dockerfile
+        push: false
+        tags: ${{ env.DOCKER_IMAGE_NAME }}:latest

@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "description": "An automated, containerized Node.js web application",
   "main": "app.js",
-  "scripts": {
-    "start": "node app.js",
-    "test": "jest"
-  },
+ "scripts": {
+  "test": "jest"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
